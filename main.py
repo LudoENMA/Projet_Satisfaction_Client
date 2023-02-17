@@ -5,4 +5,5 @@ def afficher_lignes(n=10):
 
 afficher_lignes(10)
 
-print("rr")
+print("rrrr")
+
