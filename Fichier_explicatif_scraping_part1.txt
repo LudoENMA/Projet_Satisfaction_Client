@@ -1,0 +1,29 @@
+Ce fichier a pour but d'expliquer ce qui a été fait lors du scrapping (partie 1) des toutes les sociétés de différentes
+catégories.
+
+
+Nous avons réalisé un fichier python permettant de réaliser du scraping sur le site « TrustPilot ».
+
+Celui-ci se compose de plusieurs parties :
+-	Connexion au site, fermeture des cookies
+-	Clique sur les catégories voulues
+-	Récupérations des données pour chacune des entreprises de la catégorie sélectionné
+-	Changement de page afin de récupérer des données sur 3 pages d’affilé.
+-	Mêmes opérations pour une autre catégorie
+-	Stockage de ces données dans des listes
+-	Transformation de ces listes en un DataFrame par l’intermédiaire d’un dictionnaire.
+
+
+Problème rencontré :
+-	Les clics réalisés ne fonctionnent pas toujours. Dans le cas où ceux-ci ne fonctionnent pas il faut faire attention à bien se trouver sur la bonne page pour récupérer des informations, sans quoi le programme va bugger
+-	La récupération d’information doit être espacée par des temps d’attente
+    o	Afin de rendre la navigation sur le site le plus naturel possible
+    o	Mais aussi pour laisser le temps que les pages internet se chargent avant de récupérer les informations voulues.
+Entre chacun des commandes effectuées, nous utilisons la commande « sleep » du module « time » afin de créer un temps d’attente.
+« sleep(random.uniform(T_MIN, T_MAX) » permet de prendre un temps d’attente aléatoire comprise entre « T_MIN » et « T_MAX3 ».
+Ce temps d’attente sera un « float » compris entre 2 et 3 secondes.
+En mettant ce temps d’attente trop faible on remarque que le programme échoue assez souvent à récupérer les données.
+
+-	Avec ce que l’on vient de décrire, on obtient rapidement un programme qui met pas mal de temps à fonctionner.
+Nous avons récupéré les informations de toutes les catégories de la page 1, sur 3 pages à chaque fois.
+360 lignes récupérées dans notre DF, pour un temps total de 129 minutes.
