@@ -1,22 +1,22 @@
 Nous avons réalisé un fichier python permettant de réaliser du Scraping sur le site « TrustPilot ».
 
-Dans cette seconde partie, nous nous intéressons seulement à une seule société. L’idée est de récupérer les informations générales sur celle-ci, puis de regarder tous les avis qui ont été laissé sur cette société.
-Nous avons choisi une société qui possède énormément d’avis (plus de 200000) afin de pouvoir réaliser une véritable grande base de données.
+Dans cette seconde partie, nous nous intéressons seulement à une seule société. L’idée est de récupérer les informations générales sur celle-ci, puis de regarder tous les avis qui ont été laissé sur cette société. 
+Nous avons choisi une société qui possède énormément d’avis (plus de 200000) afin de pouvoir réaliser une véritable grande base de données. 
 
-Ce fichier se décompose de plusieurs parties :
+Ce fichier se décompose de plusieurs parties : 
 -	Connexion au site, fermeture des cookies
 -	Clique sur la barre de recherche afin de pouvoir renseigner une entreprise
--	Envoie de données « Showroomprivé.com » dans cette barre de recherche puis clique sur entrée.
+-	Envoie de données « Showroomprivé.com » dans cette barre de recherche puis clique sur entrée. 
 -	Pour la première page nous récupérons :
-o	Le nom de la société
+o	Le nom de la société 
 o	Le nombre d’avis « 5 étoiles »
 o	Le nombre d’avis « 4 étoiles »
 o	Le nombre d’avis « 3 étoiles »
 o	Le nombre d’avis « 2 étoiles »
 o	Le nombre d’avis « 1 étoiles »
-o	Le nombre d’avis au total
+o	Le nombre d’avis au total 
 o	La note globale de la société
--	Ensuite, pour chaque page nous allons traiter chacun des commentaires (il y’a 20 commentaires par page).
+-	Ensuite, pour chaque page nous allons traiter chacun des commentaires (il y’a 20 commentaires par page). 
 -	Nous regardons quelle est la note de l’avis laissé. Si cette note est inférieure ou égale à 2 étoiles nous considérons que l’avis nous intéresse et que les informations de celui-ci doivent être stockée dans la base de données.
 -	Pour les avis qui nous intéressent (1 ou 2 étoiles), on récupère les données suivantes :
 o	Titre du commentaire
@@ -24,19 +24,20 @@ o	Date du commentaire
 o	Un booléen permettant de savoir si ce commentaire a reçu une réponse au non
 o	Le nom de la personne qui a laissé un commentaire (cela sera très souvent « Showroom » qui répondra aux commentaires négatifs).
 o	Le nombre d’étoile du commentaire. Cette valeur vaudra nécessairement « 1 » ou « 2 »
--	On stock toutes ces valeurs dans des listes.
+-	On stock toutes ces valeurs dans des listes.  
 -	On passe à la page suivante et on récupère de la même façon les informations sur les commentaires.
 -	On fait cela sur un nombre de page définit. Pour cette entreprise, il y’a plus de 11000 pages de commentaires. Dans un premier temps nous récupérons les données sur 100 pages afin de valider notre modèle. Par la suite, nous pourrions convenir de récupérer les données sur 1000 pages, voir plus
 -	On transforme ces listes de données en un DataFrame par l’intermédiaire d’un dictionnaire. Cela permet d’obtenir un fichier « .csv » qui sera traité par la suite
 
 
 Problème rencontré :
--	Entre chacun des commandes effectuées, nous utilisons la commande « sleep » du module « time » afin de créer un temps d’attente.
-« sleep(random.uniform(T_MIN, T_MAX) » permet de prendre un temps d’attente aléatoire comprise entre « T_MIN » et « T_MAX3 ».
-Ce temps d’attente sera un « float » compris entre 2 et 3 secondes.
-En mettant ce temps d’attente trop faible on remarque que le programme échoue assez souvent à récupérer les données.
+-	Entre chacun des commandes effectuées, nous utilisons la commande « sleep » du module « time » afin de créer un temps d’attente. 
+« sleep(random.uniform(T_MIN, T_MAX) » permet de prendre un temps d’attente aléatoire comprise entre « T_MIN » et « T_MAX3 ». 
+Ce temps d’attente sera un « float » compris entre 2 et 3 secondes. 
+En mettant ce temps d’attente trop faible on remarque que le programme échoue assez souvent à récupérer les données. 
 
--	Nous avons eu du mal à récupérer la note de l’avis car celle-ci était sous forme d’une image. L'utilisation de "ByXPATH“ n’a pas été triviale, mais a permis d’isoler la note de l’avis. Cette note est essentielle afin de savoir si on souhaite conserver cet avis ou non dans notre base de données.
+-	Nous avons eu du mal à récupérer la note de l’avis car celle-ci était sous forme d’une image. L'utilisation de "ByXPATH“ n’a pas été triviale, mais a permis d’isoler la note de l’avis. Cette note est essentielle afin de savoir si on souhaite conserver cet avis ou non dans notre base de données. 
 
--	Avec ce que l’on vient de décrire, on obtient rapidement un programme qui met du temps à fonctionner.
-Nous avons récupéré les informations les commentaires de 80 pages en 75. Si on considère que ce temps est linéaire, nous allons mettre 937 minutes, soit à peu près 15H30 à tourner.
+-	Avec ce que l’on vient de décrire, on obtient rapidement un programme qui met du temps à fonctionner. 
+
+Nous avons récupéré les informations les commentaires de 100 pages en 10min. Si on considère que ce temps est linéaire, nous allons mettre 100 minutes, soit à peu près 1H40 à tourner sur 1000 pages
