@@ -1,0 +1,2 @@
+# Pour telecharger la BD
+mysqldump -u LACINE_BERTHE -p customer_satisfaction > C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/Satisfaction_client.sql.

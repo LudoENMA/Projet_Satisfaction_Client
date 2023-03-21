@@ -1,0 +1,23 @@
+CREATE TABLE showroom_comment (
+  id_comment INT NOT NULL AUTO_INCREMENT,
+  Titre_comment VARCHAR(255) NOT NULL,
+  Date_reponse VARCHAR(255),
+  Reponse_ou_non BOOLEAN,
+  Liste_personnes VARCHAR(255),
+  Nombre_etoile INT,
+  PRIMARY KEY (id_comment)
+);
+
+
+LOAD DATA INFILE 'C:/ProgramData/MySQL/MySQL Server 8.0/Uploads/showroom_commentaire.csv'
+IGNORE INTO TABLE showroom_comment
+FIELDS TERMINATED BY ',' 
+ENCLOSED BY '"'
+LINES TERMINATED BY '\n'
+IGNORE 1 ROWS;
+select * from info_company;
+SELECT name_company, nombre_avis,  localisation_company FROM info_company WHERE localisation_company="Paris";
+
+C:/Users/LACINE BERTHE/Desktop/2022-2023/Pole_emploi/Formation/Data_Scientest/Projet/Satisfaction_client/SQL/Satisfaction_client.
+
+Téléchargements/Satisfaction_client.sql
