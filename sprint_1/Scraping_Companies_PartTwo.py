@@ -336,5 +336,5 @@ for i in range(nombre_page):
 # CALCUL DU TEMPS DE REPONSE GLOBAL DU PROGRAMME
 driver.close()
 tt = time() - t0  # heure de fin
-print("Réalisé en {} secondes".format(round(tt, 1)))
+print("Réalisé en {} secondes".format(round(tt, 1)) )
 print("Réalisé en {} minutes ".format(round(tt, 1)//60))
