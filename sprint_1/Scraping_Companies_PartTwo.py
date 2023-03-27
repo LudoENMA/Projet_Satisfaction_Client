@@ -12,8 +12,8 @@ import pandas as pd
 import re
 import numpy as np
 import random
-T_MIN = 2
-T_MAX = 3
+T_MIN = 1.5
+T_MAX = 2
 
 # RECUPERATION MANUELLE DES DONNEES #
 # Instancitation du webdriver
@@ -97,16 +97,42 @@ def get_informations_general_company():
            pourcentage_1_stars, avis_number, avis_notation
 
 
-def get_informations_comments(list_comment, n, l1, l2, l3, l4, l5, l6, l7):
+def get_informations_comments(list_comment, n, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10):
     """
-    On va récupérer les informations du commentaire : titre / date / réponse au commentaire (boolean) / qui a répondu
-    au commentaire / nombre d'étoile / commentaire / reponse au commentaire
+    On va récupérer toutes les informations du commentaire : (10 informations pour être précis)
+    TITRE COMMENTAIRE
+    DATE EXPERIENCE
+    COMMENTAIRE
+    QUI A COMMENTÉ
+    NOMBRE AVIS LAISSÉ PAR CETTE PERSONNE
+    LOCALISATION DE LA PERSONNE QUI A COMMENTÉ
+    PRÉSENCE D'UNE RÉPONSE (booléen)
+    QUI A RÉPONDU
+    RÉPONSE AU COMMENTAIRE
+    NOMBRE D'ÉTOILE
     """
-    # TITRE
+    # TITRE COMMENTAIRE
     try:
         title_comment_personne = list_comment[n].find_element(by='class name', value="typography_heading-s__f7029").text
     except:
         title_comment_personne = None
+
+    # DATE EXPERIENCE
+    try:  # obtention d'une liste de 3 ou 4 éléments avec la date en 2 ou 3 / mais aussi une liste de 1 élément -> bug
+        list_date = list_comment[n].find_element(by='class name', value="styles_reviewContentwrapper__zH_9M").\
+             find_elements(by='class name', value="typography_body-m__xgxZ_")
+    except:
+        date_experience = None
+    else:
+        try:
+            test = list_date[1].text.find("Date de l'expérience:")
+        except:
+            date_experience = None
+        else:
+            if test == 0:  # c'est que la données de la date est en 2éme position
+                date_experience = list_date[1].text.split(":")[-1].strip(" ")
+            else:  # c'est que la données de la date est en 3éme position
+                date_experience = list_date[2].text.split(":")[-1].strip(" ")
 
     # COMMENTAIRE
     try:
@@ -114,38 +140,47 @@ def get_informations_comments(list_comment, n, l1, l2, l3, l4, l5, l6, l7):
     except:
         comment_personne = None
 
-    # DATE
-    try:  # obtention d'une liste de 3 ou 4 éléments avec la date en 2 ou 3
-        list_date = list_comment[n].find_element(by='class name', value="styles_reviewContentwrapper__zH_9M") \
-                                    .find_elements(by='class name', value="typography_body-m__xgxZ_")
-    except:
-        date_experience = None
-    else:
-        test = list_date[1].text.find("Date de l'expérience:")
-        if test == 0:  # c'est que la données de la date est en 2éme position
-            date_experience = list_date[1].text.split(":")[-1].strip(" ")
-        else:  # c'est que la données de la date est en 3éme position
-            date_experience = list_date[2].text.split(":")[-1].strip(" ")
-
-    # REPONSE COMMENTAIRE
+    # QUI A COMMENTÉ
     try:
-        reponse_comment = list_comment[n].find_element(by='class name', value="styles_content__Hl2Mi"). \
-            find_elements(by='class name', value="typography_body-m__xgxZ_")[2].text
+        who_comment = list_comment[n].find_element(by='class name', value="styles_consumerDetailsWrapper__p2wdr").\
+                find_element(by='class name', value="typography_heading-xxs__QKBS8").text
     except:
-        reponse_comment = None
+        who_comment = None
 
-    # REPONSE COMMENTAIRE OU NON
-    rep_bool = True
+    # NOMBRE AVIS LAISSÉ PAR CETTE PERSONNE
+    try:
+        nb_who_comment = list_comment[n].find_element(by='class name', value="styles_consumerDetailsWrapper__p2wdr").\
+                find_elements(by='class name', value="typography_body-m__xgxZ_")[0].text
+    except:
+        nb_who_comment = None
+
+    # LOCALISATION DE LA PERSONNE QUI A COMMENTÉ
+    try:
+        where_who_comment = list_comment[n].find_element(by='class name', value="styles_consumerDetailsWrapper__p2wdr").\
+                find_elements(by='class name', value="typography_body-m__xgxZ_")[1].text
+    except:
+        where_who_comment = None
+
+    # PRÉSENCE D'UNE RÉPONSE (booléen)
+    reponse_bool = True
     try:  # si on y arrive c'est qu'il y a une réponse au commentaire
-        reponse_comment_bool = list_comment[n].find_element(by='class name', value="styles_replyInfo__FYSje").text.split(" ")[2].split("\n")[0]
+        reponse_comment_bool = list_comment[n].find_element(by='class name', value="styles_replyInfo__FYSje").\
+                 text.split(" ")[2].split("\n")[0]
     except:
         print("--> Pas de réponse à ce commentaire")
-        rep_bool = False
+        reponse_bool = False
         reponse_comment_bool = None
     else:
         print("--> Il y'a une réponse à ce commentaire")
 
-    # NOMBRE D'ETOILE
+    # RÉPONSE AU COMMENTAIRE
+    try:
+        reponse_comment = list_comment[n].find_element(by='class name', value="styles_content__Hl2Mi").\
+                  find_elements(by='class name', value="typography_body-m__xgxZ_")[2].text
+    except:
+        reponse_comment = None
+
+    # NOMBRE D'ÉTOILE
     balise_int = list_comment[n].find_element(by='class name', value="star-rating_starRating__4rrcf")  # balise en amont
     star_number = 0
     try:
@@ -179,23 +214,30 @@ def get_informations_comments(list_comment, n, l1, l2, l3, l4, l5, l6, l7):
     else:
         star_number = 5
 
-    print("--> Titre du commentaire : " + str(title_comment_personne))
-    print("--> Date du commentaire : " + str(date_experience))
-    print("--> Nombre d'étoile : " + str(star_number))
-    print("--> La réponse a été fournie par : " + str(reponse_comment_bool))
-    print("--> Commentaire : " + str(comment_personne))
-    print("--> Réponse au commentaire : " + str(reponse_comment))
+    print("--> TITRE COMMENTAIRE : " + str(title_comment_personne))
+    print("--> DATE EXPERIENCE : " + str(date_experience))
+    print("--> COMMENTAIRE : " + str(comment_personne))
+    print("--> QUI A COMMENTÉ : " + str(who_comment))
+    print("--> NOMBRE AVIS LAISSÉ PAR CETTE PERSONNE : " + str(nb_who_comment))
+    print("--> LOCALISATION DE LA PERSONNE QUI A COMMENTÉ : " + str(where_who_comment))
+    print("--> PRÉSENCE D'UNE RÉPONSE (booléen) : " + str(reponse_bool))
+    print("--> QUI A RÉPONDU : " + str(reponse_comment_bool))
+    print("--> RÉPONSE AU COMMENTAIRE : " + str(reponse_comment))
+    print("--> NOMBRE D'ÉTOILE : " + str(star_number))
     print()
     print()
-    # CONDITION SUR LE NOMBRE D ETOILE POUR AJOUTER LES INFORMATIONS
-    if star_number <= 2:
-        l1.append(title_comment_personne)
-        l2.append(date_experience)
-        l3.append(rep_bool)
-        l4.append(reponse_comment_bool)
-        l5.append(star_number)
-        l6.append(comment_personne)
-        l7.append(reponse_comment)
+    print()
+    # il n'y a plus de condition sur le nombre d'étoile désormais
+    l1.append(title_comment_personne)
+    l2.append(date_experience)
+    l3.append(comment_personne)
+    l4.append(who_comment)
+    l5.append(nb_who_comment)
+    l6.append(where_who_comment)
+    l7.append(reponse_bool)
+    l8.append(reponse_comment_bool)
+    l9.append(reponse_comment)
+    l10.append(star_number)
 
 
 def go_next_page():
@@ -205,18 +247,17 @@ def go_next_page():
     sleep(random.uniform(T_MIN, T_MAX))
 
 
-def actions_fill_list(li_titre, li_date, li_rep_bool, li_rep_who, li_stars, li_comment, list_rep_comment):
+def actions_fill_list(l1, l2, l3, l4, l5, l6, l7, l8, l9, l10):
     try:
-        list_informations = driver.find_elements(by='class name', value="styles_cardWrapper__LcCPA")
+        liste_informations = driver.find_elements(by='class name', value="styles_cardWrapper__LcCPA")
     except:
         print("on a pas réussi à récupérer la liste des commentaire")
     else:
-        for i in range(len(list_informations)):
-            get_informations_comments(list_informations, i, li_titre, li_date,
-                                      li_rep_bool, li_rep_who, li_stars,
-                                      li_comment, list_rep_comment)
+        for i in range(len(liste_informations)):
+            get_informations_comments(liste_informations, i, l1, l2, l3, l4, l5, l6, l7, l8, l9, l10)
 
 
+# DEBUT DU PROGRAMME
 t0 = time()  # début du chronomètre
 # CLIQUE SUR L'ENTREPRISE VOULUE
 open_trust_pilot_and_close_cookie()
@@ -241,18 +282,31 @@ df_company = pd.DataFrame(data=dictionnaire_df)
 df_company.to_csv("PART2_Infos_generales_Showroomprivee.csv")  # ON GARDERA T_MIN = 2 / T_MAX = 3
 
 
-# 2eme CSV et 3eme CSV : RECUPERATION DES INFORMATIONS SUR LES COMMENTAIRES
-list_titre = []
-list_date = []
-list_reponse_boolean = []
-list_reponse_who = []
-list_stars = []
-list_comment = []
-list_reponse_comment = []
-nombre_page = 10
+# 2eme CSV : RECUPERATION DES INFORMATIONS SUR LES COMMENTAIRES
+liste_titre = []
+liste_date = []
+liste_commentaire = []
+liste_qui_a_commente = []
+liste_nombre_davis_laisse_par_cette_personne = []
+liste_localisation_de_la_personne_qui_a_commente = []
+liste_presence_dune_reponse_booleen = []
+liste_qui_a_repondu = []
+liste_reponse_au_commentaire = []
+liste_nombre_detoile = []
+nombre_page = 3000
+
 for i in range(nombre_page):
-    actions_fill_list(list_titre, list_date, list_reponse_boolean, list_reponse_who, list_stars, list_comment, list_reponse_comment)
-    print("Nombre de commentaire récupérés : " + str(len(list_titre)))
+    actions_fill_list(liste_titre,
+                      liste_date,
+                      liste_commentaire,
+                      liste_qui_a_commente,
+                      liste_nombre_davis_laisse_par_cette_personne,
+                      liste_localisation_de_la_personne_qui_a_commente,
+                      liste_presence_dune_reponse_booleen,
+                      liste_qui_a_repondu,
+                      liste_reponse_au_commentaire,
+                      liste_nombre_detoile)
+    print("Nombre de commentaire récupérés : " + str(len(liste_titre)))
     print("Page : " + str(i+1) + " / " + str(nombre_page))
     ti = time() - t0  # heure intermédiaire
     print("Réalisé en {} secondes".format(round(ti, 1)))
@@ -261,20 +315,20 @@ for i in range(nombre_page):
 
     # REMPLISSAGE DF / CREATION DE CSV / pour les informations générales des commentaires négatifs
     # on effectue cela à chaque page que l'on récupère pour avoir un fichier .csv
-    # si le programme plante avant la fin/ pour les informations générales de la company observée
-    dictionnaire_infos_generales_comment = {'Titre comment': list_titre,
-                                            'Date de réponse': list_date,
-                                            'Reponse ou non': list_reponse_boolean,
-                                            'Liste peronnes': list_reponse_who,
-                                            "Nombre d'étoile": list_stars}
-    dictionnaire_comment_response = {'Commentaire': list_comment,
-                                     "Réponse commenaitre": list_reponse_comment}
+    # si le programme plante avant la fin pour les informations générales de la company observée
+    dictionnaire_infos_generales_comment = {"TITRE COMMENTAIRE": liste_titre,
+                                            "DATE EXPERIENCE": liste_date,
+                                            "COMMENTAIRE": liste_commentaire,
+                                            "QUI A COMMENTÉ": liste_qui_a_commente,
+                                            "NOMBRE AVIS LAISSÉ PAR CETTE PERSONNE": liste_nombre_davis_laisse_par_cette_personne,
+                                            "LOCALISATION DE LA PERSONNE QUI A COMMENTÉ": liste_localisation_de_la_personne_qui_a_commente,
+                                            "PRÉSENCE D'UNE RÉPONSE (booléen)": liste_presence_dune_reponse_booleen,
+                                            "QUI A RÉPONDU": liste_qui_a_repondu,
+                                            "RÉPONSE AU COMMENTAIRE": liste_reponse_au_commentaire,
+                                            "NOMBRE D'ÉTOILE": liste_nombre_detoile}
 
     df_infos_generales_comment = pd.DataFrame(data=dictionnaire_infos_generales_comment)
-    df_comment_response = pd.DataFrame(data=dictionnaire_comment_response)
-
-    df_infos_generales_comment.to_csv("PART2_Infos_generales_Commentaire.csv")
-    df_comment_response.to_csv("PART2_Commentaire_Reponses.csv")
+    df_infos_generales_comment.to_csv("PART2_Infos_generales_Commentaire_complet.csv")
 
     go_next_page()
 
@@ -282,5 +336,5 @@ for i in range(nombre_page):
 # CALCUL DU TEMPS DE REPONSE GLOBAL DU PROGRAMME
 driver.close()
 tt = time() - t0  # heure de fin
-print("Réalisé en {} secondes".format(round(tt, 1)))
+print("Réalisé en {} secondes".format(round(tt, 1)) )
 print("Réalisé en {} minutes ".format(round(tt, 1)//60))
